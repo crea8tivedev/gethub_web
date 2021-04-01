@@ -33,6 +33,7 @@ dependencies:
   http_client: ^1.2.0
   graphql: ^4.0.1
   intl_phone_number_input: ^0.6.0
+  flutter_staggered_animations: ^1.0.0
 
 
 
