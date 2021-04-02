@@ -10,52 +10,64 @@ String posLoginToJson(PosLogin data) => json.encode(data.toJson());
 
 class PosLogin {
   PosLogin({
-    this.typename,
+    this.data,
+  });
+
+  Data data;
+
+  factory PosLogin.fromJson(Map<String, dynamic> json) => PosLogin(
+    data: Data.fromJson(json["data"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "data": data.toJson(),
+  };
+}
+
+class Data {
+  Data({
     this.posLogin,
   });
 
-  String typename;
   PosLoginClass posLogin;
 
-  factory PosLogin.fromJson(Map<String, dynamic> json) => PosLogin(
-    typename: json["__typename"],
+  factory Data.fromJson(Map<String, dynamic> json) => Data(
     posLogin: PosLoginClass.fromJson(json["posLogin"]),
   );
 
   Map<String, dynamic> toJson() => {
-    "__typename": typename,
     "posLogin": posLogin.toJson(),
   };
 }
 
 class PosLoginClass {
   PosLoginClass({
-    this.typename,
     this.statusCode,
     this.message,
     this.error,
     this.accessToken,
+    this.refershToken,
   });
 
-  String typename;
   int statusCode;
   String message;
   dynamic error;
   String accessToken;
+  dynamic refershToken;
 
   factory PosLoginClass.fromJson(Map<String, dynamic> json) => PosLoginClass(
-    typename: json["__typename"],
     statusCode: json["statusCode"],
     message: json["message"],
     error: json["error"],
     accessToken: json["accessToken"],
+    refershToken: json["refershToken"],
   );
 
   Map<String, dynamic> toJson() => {
-    "__typename": typename,
     "statusCode": statusCode,
     "message": message,
     "error": error,
     "accessToken": accessToken,
+    "refershToken": refershToken,
   };
 }

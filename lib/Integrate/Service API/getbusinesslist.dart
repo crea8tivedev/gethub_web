@@ -1,11 +1,22 @@
 
 import 'package:graphql/client.dart';
 
-Future checkEmail(
-    String email,
-    ) async {
+Future getBusinessList()async {
   try {
-    String checkMail = 'query{\n  checkEmailExists(input:{\n    email :"$email"\n  }){\n    statusCode\n    message\n    error{\n      path\n      message\n    }\n    available\n  }\n}';
+    String checkMail = r'''query{
+  getBusinessTypes {
+    statusCode
+    message
+    error{
+      path
+      message
+    }
+    data{
+      id
+      name
+    }
+  }
+}''';
 
     final _httpLink = HttpLink(
       'http://211.24.73.35:8000/graphql',
@@ -32,7 +43,7 @@ Future checkEmail(
     }
     print(result.data);
     // return (jsonEncode(result.data));
-    return result.data['checkEmailExists']['available'];
+    return result.data;
   } catch (error) {
     throw error;
   }

@@ -1,4 +1,4 @@
-import 'package:get_hubweb/Modal/pos_login.dart';
+import 'package:get_hubweb/Modal API/posLogin.dart';
 import 'package:http/http.dart' as http;
 
 Future<PosLogin> posLogin() async {

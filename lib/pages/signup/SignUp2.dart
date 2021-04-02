@@ -1,22 +1,25 @@
-
-
+import 'package:country_pickers/country.dart';
+import 'package:country_pickers/country_picker_dropdown.dart';
+import 'package:country_pickers/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:get_hubweb/Modal%20API/customer_registration.dart';
 import 'package:get_hubweb/Provider/signup_provider.dart';
 import 'package:get_hubweb/Service%20API/registration.dart';
-import 'package:get_hubweb/Services/SignIn.dart';
+import 'package:get_hubweb/pages/signin/SignIn.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';
+import 'package:get_hubweb/Integrate/Service API/checkDomain.dart';
+import 'package:get_hubweb/Integrate/Service API/getbusinesslist.dart';
 
-class SignUp extends StatefulWidget {
-  static const routeName = 'SignUp';
+class SignUp2 extends StatefulWidget {
+  static const routeName = 'SignUp2';
 
   @override
-  _SignUpState createState() => _SignUpState();
+  _SignUp2State createState() => _SignUp2State();
 }
 
-class _SignUpState extends State<SignUp> {
-
+class _SignUp2State extends State<SignUp2> {
+  List<String> BusinessList=[];
   bool bn_val=false;
   String bn = '';
   bool dn_val=false;
@@ -37,6 +40,22 @@ class _SignUpState extends State<SignUp> {
   var lastNameController = TextEditingController();
 
   var phoneController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getBusiness();
+  }
+  getBusiness()async{
+    BusinessList.add('Select Your Business Type');
+    var temp = await getBusinessList();
+    var data = temp['getBusinessTypes']['data'];
+    for (var i = 0; i < data.length; i++) {
+      BusinessList.add(data[i]['name'].toString());
+    }
+    setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
     var signUpData = Provider.of<SignUpProvider>(context);
@@ -226,29 +245,45 @@ class _SignUpState extends State<SignUp> {
                             borderRadius: BorderRadius.circular(5),
                             border: Border.all(color: Colors.black)
                         ),
-                        child: InternationalPhoneNumberInput(
-                          textFieldController: phoneController,
-                          inputBorder: InputBorder.none,
-                          onInputChanged: (PhoneNumber number) {
-                            print(number.phoneNumber);
-                          },
-                          onInputValidated: (bool value) {
-                            print(value);
-                          },
-                          selectorConfig: SelectorConfig(
-                            selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                          ),
-                          ignoreBlank: false,
-                          autoValidateMode: AutovalidateMode.disabled,
-                          selectorTextStyle: TextStyle(color: Colors.black),
-                          // initialValue: number,
-                          // textFieldController: controller,
-                          formatInput: false,
-                          keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
-                          // inputBorder: OutlineInputBorder(),
-                          onSaved: (PhoneNumber number) {
-                            print('On Saved: $number');
-                          },
+                        child: Row(
+                          children: <Widget>[
+                            CountryPickerDropdown(
+                              initialValue: 'in',
+                              itemBuilder: (country){
+                                return Container(
+                                  child: Row(
+                                    children: <Widget>[
+                                      SizedBox(
+                                        width: 8.0,
+                                      ),
+                                      CountryPickerUtils.getDefaultFlagImage(country),
+                                      SizedBox(
+                                        width: 8.0,
+                                      ),
+                                      Text("+${country.phoneCode}(${country.isoCode})"),
+                                    ],
+                                  ),
+                                );
+                              },
+                              onValuePicked: (Country country) {
+                                print("${country.name}");
+                              },
+                            ),
+                            Expanded(
+                              child: TextField(
+                                controller: phoneController,
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Phone Number",
+                                ),
+                                onChanged: (value) {
+                                  // this.phoneNo=value;
+                                  print(value);
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -295,14 +330,12 @@ class _SignUpState extends State<SignUp> {
 
                                   });
                                 },
-                                items: <String>['Select Your Business Type', 'Retail']
-                                    .map<DropdownMenuItem<String>>((String value) {
+                                items: BusinessList.map((String value) {
                                   return DropdownMenuItem<String>(
                                     value: value,
                                     child: Text(value),
                                   );
-                                })
-                                    .toList(),
+                                }).toList(),
                               ),
                             ),
                           ),
@@ -370,7 +403,13 @@ class _SignUpState extends State<SignUp> {
                       Center(
                         child: InkWell(
                           onTap: () async {
-                            if(!bn_val && !dn_val && !fn_val && !ln_val && dropdownValue!=null && dropdownValue2!=null){
+                            var temp = await checkDomain(domainController.text);
+                            print('yyyyyyyyyyyyyyy $temp');
+                            if(!bn_val && !dn_val && !fn_val && !ln_val && dropdownValue!='Select Your Business Type' && dropdownValue2!='How many stores do you own ?' && businessNameController.text.trim().isNotEmpty && domainController.text.trim().isNotEmpty && firstNameController.text.trim().isNotEmpty && lastNameController.text.trim().isNotEmpty && temp){
+                              print('hiiiii');
+                              print(signUpData.email);
+                              print(signUpData.password);
+                              print(signUpData.countryId);
                               CustomerRegistrationModal modal  = await customerRegistration(signUpData.email, signUpData.password, signUpData.countryId, businessNameController.text, domainController.text, firstNameController.text, lastNameController.text, phoneController.text, dropdownValue, int.parse(dropdownValue2));
                               if(modal.customerRegistration.statusCode == 201){
                                 ScaffoldMessenger.of(context).showSnackBar(success);
@@ -379,11 +418,24 @@ class _SignUpState extends State<SignUp> {
                               else{
                                 ScaffoldMessenger.of(context).showSnackBar(fail);
                               }
+                            }else{
+                              bn_val=businessNameController.text.trim().isNotEmpty?false:true;
+                              dn_val=domainController.text.trim().isNotEmpty&& temp?false:true;
+                              fn_val=firstNameController.text.trim().isNotEmpty?false:true;
+                              ln_val=lastNameController.text.trim().isNotEmpty?false:true;
+                              bn="required field";
+                              dn=domainController.text.trim().isNotEmpty && dn_val?"The domain is taken":"required field";
+                              fn="required field";
+                              ln="required field";
+                              setState(() {});
                             }
                           },
                           child: Container(
                             padding: EdgeInsets.symmetric(vertical: deviceWidth* .01,horizontal: deviceWidth* .05 ),
-                            color: Colors.orange,
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(25),
+                            ),
                             child: Text('Let\'s Go',style: TextStyle(color: Colors.white,fontSize: 16)),
                           ),
                         ),

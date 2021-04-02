@@ -1,23 +1,32 @@
+import '../terms.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_hubweb/Provider/signup_provider.dart';
 import 'package:provider/provider.dart';
-import '../Landing Page/landing_home.dart';
+import 'package:get_hubweb/pages/Landing Page/landing_home.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'SignIn.dart';
-import 'SignUp.dart';
+import '../signin/SignIn.dart';
+import 'SignUp2.dart';
 import 'package:get_hubweb/Service API/countryList.dart';
-class LoginPage extends StatefulWidget {
-  static const routeName = 'LoginPage';
+import 'package:get_hubweb/Integrate/Service API/check_emal.dart';
+import 'dart:js' as js;
+import 'dart:html';
+
+
+class SignUp1 extends StatefulWidget {
+  static const routeName = 'SignUp1';
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _SignUp1State createState() => _SignUp1State();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _SignUp1State extends State<SignUp1> {
   String title = 'DROPDOWNButton';
+  var temp = false;
   List _cityname = [];
+  bool selected=true;
   String _cityval;
+  bool obs=true;
   String em_error;
   bool em_val=false;
   String pas_error;
@@ -32,6 +41,20 @@ class _LoginPageState extends State<LoginPage> {
 
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+
+  void goToSignUp2(BuildContext context){
+    Navigator.pushNamed(context, SignUp2.routeName);
+  }
+
+  void goToTerms(){
+    var url = window.location.href;
+    var code=url.split(':')[2].split('/')[0];
+    js.context.callMethod('open', ['http://localhost:$code/#TermsAndCondition']);
+  }
+
+  void goToLoginPage(BuildContext context){
+    Navigator.pushNamed(context, SignUp1.routeName);
+  }
 
   void goToSignIn(BuildContext context){
     Navigator.pushNamed(context, SignIn.routeName);
@@ -61,44 +84,69 @@ class _LoginPageState extends State<LoginPage> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
+            automaticallyImplyLeading: false,
             toolbarHeight: 84,
             backgroundColor: Colors.white,
             pinned: true,
-            expandedHeight: 84.0,
             systemOverlayStyle: SystemUiOverlayStyle.light,
             flexibleSpace: FlexibleSpaceBar(
               title: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Image.asset('images/logo.png'),
-                  Container(
-                    child: Row(
-                      children: [
-                        HeadText(
-                          title: "Home",
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => LandingHome()));
-                          },
-                        ),
-                        HeadText(
-                          title: "About",
-                          onPressed: () {},
-                        ),
-                        HeadText(
-                          title: "Contact",
-                          onPressed: () {},
-                        ),
-                      ],
+                  Container(child: Image.asset('images/logo.png')),
+                  SizedBox(width: MediaQuery.of(context).size.width*0.25,),
+                  Container(child: Row(children: [
+                    HeadText(
+                      title: "Home",
+                      onPressed: () {
+                      },
                     ),
-                  ),
-                  SizedBox(
-                    width: 10,
+                    SizedBox(width: 10,),
+                    HeadText(
+                      title: "Features",
+                      onPressed: () {
+                      },
+                    ),
+                    SizedBox(width: 10,),
+                    HeadText(
+                      title: "Plans",
+                      onPressed: () {},
+                    ),
+                    SizedBox(width: 10,),
+                    HeadText(
+                      title: "FAQ",
+                      onPressed: () {},
+                    ),
+                    SizedBox(width: 10,),
+                    HeadText(
+                      title: "Blog",
+                      onPressed: () {},
+                    ),
+                    SizedBox(width: 10,),
+                    HeadText(
+                      title: "Contact",
+                      onPressed: () {},
+                    ),
+                    SizedBox(width: 10,),
+                    ElevatedButton(
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.resolveWith(
+                                    (states) => Color(0xffef7f1a)),
+                            overlayColor: MaterialStateProperty.resolveWith(
+                                    (states) => Color(0xff475668)),
+                            padding: MaterialStateProperty.resolveWith((states) =>
+                                EdgeInsets.symmetric(vertical: 20, horizontal: 50))),
+                        onPressed: () {
+                          goToLoginPage(context);
+                        },
+                        child: Text(
+                          'Start Free Trial',
+                          style: GoogleFonts.manrope(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white),
+                        ))
+                  ],),
                   )
                 ],
               ),
@@ -197,7 +245,7 @@ class _LoginPageState extends State<LoginPage> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(right:8.0),
+                                        padding: const EdgeInsets.only(right:15),
                                         child: TextButton(onPressed: () {
                                           goToSignIn(context);
                                         }, child: Text('Have an account? Sign in',style: TextStyle(color:Colors.grey),)),
@@ -217,40 +265,55 @@ class _LoginPageState extends State<LoginPage> {
                                         child: Container(
                                           margin: EdgeInsets.symmetric(
                                               vertical: 1, horizontal: 80),
-                                          child: TextField(
-                                              onChanged: (v){
-                                                if(v.trim().isEmpty) {
+                                          child: Focus(
+                                            onFocusChange: (hasFocus) async {
+                                              if(hasFocus==false){
+                                                temp = await checkEmail(emailController.text);
+                                                print(temp);
+                                                if(!temp){
                                                   setState(() {
-                                                    em_error = 'This field is required';
                                                     em_val=true;
+                                                    em_error = 'Looks like this email has already been registered.\nWould you like to sign in instead?';
                                                   });
+                                                }else{
+                                                  em_val=false;
                                                 }
-                                                else{
-                                                  bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(v);
-                                                  if(!emailValid) {
+                                              }
+                                            },
+                                            child: TextField(
+                                                onChanged: (v){
+                                                  if(v.trim().isEmpty) {
                                                     setState(() {
-                                                      em_error = 'Invalid email address';
+                                                      em_error = 'This field is required';
                                                       em_val=true;
                                                     });
-                                                  }else{
-                                                    //checkEmail(v);
-                                                    setState(() {
-                                                      em_val=false;
-                                                      em_error=null;
-                                                    });
                                                   }
-                                                }
-                                              },
-                                              controller: emailController,
-                                              decoration: InputDecoration(
-                                                errorText: em_val ?em_error:null,
-                                                hintText: 'Email',
-                                                border: OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                    width: 2,
+                                                  else{
+                                                    bool emailValid = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(v);
+                                                    if(!emailValid) {
+                                                      setState(() {
+                                                        em_error = 'Sorry, that isn\'t a valid email address. Please make sure it follows the \nexample@email.com format.';
+                                                        em_val=true;
+                                                      });
+                                                    }else{
+                                                      setState(() {
+                                                        em_val=false;
+                                                        em_error=null;
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                controller: emailController,
+                                                decoration: InputDecoration(
+                                                  errorText: em_val ?em_error:null,
+                                                  hintText: 'Email',
+                                                  border: OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      width: 2,
+                                                    ),
                                                   ),
-                                                ),
-                                              )),
+                                                )),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -262,8 +325,7 @@ class _LoginPageState extends State<LoginPage> {
                                     margin: EdgeInsets.symmetric(
                                         vertical: 18, horizontal: 80),
                                     child: TextField(
-                                        obscureText: false,
-                                        obscuringCharacter: '*',
+                                        obscureText: obs,
                                         controller: passwordController,
                                         onChanged: (v){
                                           if(v.trim().isEmpty) {
@@ -273,9 +335,9 @@ class _LoginPageState extends State<LoginPage> {
                                             });
                                           }
                                           else{
-                                            if(v.length<4) {
+                                            if(v.length<6) {
                                               setState(() {
-                                                pas_error = 'Password too short';
+                                                pas_error = 'Oops! Please make sure your password is at least six characters long.';
                                                 pas_val=true;
                                               });
                                             }else{
@@ -287,6 +349,11 @@ class _LoginPageState extends State<LoginPage> {
                                           }
                                         },
                                         decoration: InputDecoration(
+                                          suffixIcon: IconButton(icon: Icon(Icons.remove_red_eye), onPressed: (){
+                                            setState(() {
+                                              obs=!obs;
+                                            });
+                                          }),
                                           hintText: 'Password',
                                           errorText: pas_val ?pas_error:null,
                                           border: OutlineInputBorder(
@@ -294,7 +361,7 @@ class _LoginPageState extends State<LoginPage> {
                                               width: 2,
                                             ),
                                           ),
-                                        )),
+                                        ))
                                   ),
                                   SizedBox(
                                     height: 5,
@@ -356,20 +423,25 @@ class _LoginPageState extends State<LoginPage> {
                                                   (states) => EdgeInsets.symmetric(
                                                   vertical: 20, horizontal: 50))),
                                       onPressed: () async {
-                                        if(!em_val && !pas_val && _cityval!=null){
+                                        temp = await checkEmail(emailController.text);
+                                        if(!em_val && !pas_val && _cityval!=null&& selected &&  emailController.text.trim().isNotEmpty && passwordController.text.trim().isNotEmpty && temp){
                                           signUpData.email = emailController.text;
                                           signUpData.password = passwordController.text;
                                           passwordController.text = passwordController.text;
-                                          Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) => SignUp()));
+                                          goToSignUp2(context);
                                         }
                                         else{
                                           print('AA');
-                                          em_val=true;
-                                          em_error = 'Invalid email address';
-                                          pas_val=true;
+                                          if(emailController.text.trim().isEmpty){
+                                            em_val=true;
+                                            em_error = 'required field';
+                                          }else{
+                                            if(!temp){
+                                              em_val=true;
+                                              em_error = 'Looks like this email has already been registered.\nWould you like to sign in instead?';
+                                            }
+                                          }
+                                          pas_val=passwordController.text.trim().isEmpty?true:false;
                                           pas_error = 'This field is required';
                                           setState(() {});
                                         }
@@ -389,7 +461,41 @@ class _LoginPageState extends State<LoginPage> {
                                   SizedBox(
                                     height: 20,
                                   ),
-                                  Text('By signing up, you agree to GetHub’s Terms of Service.',style: TextStyle(color:Colors.grey))
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          setState(() {
+                                            selected = !selected;
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 24,
+                                          width: 25,
+                                          decoration: BoxDecoration(
+                                              color: selected ? Color(0xFF0095FF) : Colors.white,
+                                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                                              border: Border.all(width: 2, color: selected?Color(0xFF0095FF):Colors.grey)
+                                          ),
+                                          child: Center(
+                                              child: selected ? Icon(
+                                                Icons.check,
+                                                size: 18.0,
+                                                color: Colors.white,
+                                              ) : Container()
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width:5),
+                                      Text('By signing up, you agree to GetHub’s ',style: TextStyle(color:Colors.grey)),
+                                      TextButton(onPressed: (){
+                                        goToTerms();
+                                        }, child: Text('Terms of Service',style: TextStyle(color: Colors.grey,decoration: TextDecoration.underline),)),
+                                    ],
+                                  ),
+                                  SizedBox(height:6),
+                                  !selected?Text('Terms & Conditions is required to be checked',style: TextStyle(color:Colors.redAccent),):Container()
                                 ],
                                 //                      MutationOptions options = MutationOptions(
                                 //   documentNode: gql(a),
@@ -445,32 +551,35 @@ class _LoginPageState extends State<LoginPage> {
                           children: [
                             Text('Newsletter',style: font6,),
                             SizedBox(height: deviceWidth* .015,),
-                            Row(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      border: Border.all(color: Colors.grey,width: 1.5)
-                                  ),
-                                  width: deviceWidth* .115,
-                                  child: Theme(
-                                    data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-                                    child: TextField(
+                            Container(
+                              color: Colors.orange,
+                              child: Row(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(color: Colors.grey,width: 1.5)
+                                    ),
+                                    width: deviceWidth* .115,
+                                    child: Theme(
+                                      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                                      child: TextField(
 
-                                      decoration: InputDecoration(
-                                        prefixIcon: Icon(Icons.email_rounded,color: Colors.black,),
-                                        hintText: 'Email Address',
+                                        decoration: InputDecoration(
+                                          prefixIcon: Icon(Icons.email_rounded,color: Colors.black,),
+                                          hintText: 'Email Address',
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(vertical: deviceWidth* .01,horizontal: deviceWidth* .025 ),
-                                  color: Colors.orange,
-                                  child: Text('Subscribe',style: font5,),
-                                ),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: deviceWidth* .01,horizontal: deviceWidth* .025 ),
+                                    color: Colors.orange,
+                                    child: Text('Subscribe',style: font5,),
+                                  ),
 
-                              ],
+                                ],
+                              ),
                             ),
                             Text(''),
                             Text(''),

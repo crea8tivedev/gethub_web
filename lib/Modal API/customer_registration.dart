@@ -1,7 +1,3 @@
-// To parse this JSON data, do
-//
-//     final customerRegistrationModal = customerRegistrationModalFromJson(jsonString);
-
 import 'dart:convert';
 
 CustomerRegistrationModal customerRegistrationModalFromJson(String str) => CustomerRegistrationModal.fromJson(json.decode(str));
