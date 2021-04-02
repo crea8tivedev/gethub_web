@@ -7,7 +7,7 @@ import '../Landing Page/landing_home.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'SignIn.dart';
 import 'SignUp.dart';
-
+import 'package:get_hubweb/Service API/countryList.dart';
 class LoginPage extends StatefulWidget {
   static const routeName = 'LoginPage';
   @override
@@ -16,7 +16,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   String title = 'DROPDOWNButton';
-  List _cityname = ["India", "Malaysia"];
+  List _cityname = [];
   String _cityval;
   String em_error;
   bool em_val=false;
@@ -37,18 +37,21 @@ class _LoginPageState extends State<LoginPage> {
     Navigator.pushNamed(context, SignIn.routeName);
   }
 
-//  @override
-//  void initState() {
-//    // TODO: implement initState
-//    super.initState();
-//    getCountryList();
-//  }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getCountryList();
+  }
 
-//  getCountryList()async{
-//    var data = await getCountryData();
-//    print(data['getCountriesList']['data']);
-//    setState(() {});
-//  }
+  getCountryList()async{
+    var temp = await getCountryData();
+    var data = temp['getCountriesList']['data'];
+    for (var i = 0; i < data.length; i++) {
+      _cityname.add(data[i]['name'].toString());
+    }
+    setState(() {});
+  }
   @override
   Widget build(BuildContext context) {
     var signUpData = Provider.of<SignUpProvider>(context);
@@ -230,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
                                                       em_val=true;
                                                     });
                                                   }else{
-                                                    //checkEmailExists(v);
+                                                    //checkEmail(v);
                                                     setState(() {
                                                       em_val=false;
                                                       em_error=null;
