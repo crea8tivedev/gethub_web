@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get_hubweb/Modal%20API/posLogin.dart';
-import 'package:get_hubweb/Service%20API/posLogin.dart';
+import 'package:get_hubweb/Integrate/Modal%20API/posLogin.dart';
+import 'package:get_hubweb/Integrate/Service%20API/posLogin.dart';
+
 
 class SignIn extends StatefulWidget {
   static const routeName = 'SignIn';
@@ -20,7 +21,7 @@ class _SignInState extends State<SignIn> {
     final deviceHeight = MediaQuery.of(context).size.height;
 
     final success = SnackBar(content: Text('Signed Successfully'));
-    final fail = SnackBar(content: Text('someThing went wrong'));
+    final fail = SnackBar(content: Text('Invalid Password'));
     return SafeArea(
       child: Scaffold(
         body: Container(
@@ -119,9 +120,9 @@ class _SignInState extends State<SignIn> {
               InkWell(
                 onTap: () async {
                   PosLogin login = await posLogin(emailController.text, passController.text);
-                if(login.posLogin.statusCode == 200){
+                if(login.posLogin.message == "success"){
                   ScaffoldMessenger.of(context).showSnackBar(success);
-                }else{
+                }else if(login.posLogin.message == "Invalid Password"){
                   ScaffoldMessenger.of(context).showSnackBar(fail);
                 }
                   },

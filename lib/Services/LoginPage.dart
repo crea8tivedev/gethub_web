@@ -276,7 +276,7 @@ var signUpData = Provider.of<SignUpProvider>(context);
                               onPressed: () async {
                                 if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty){
                                   signUpData.email = emailController.text;
-                                  passwordController.text = passwordController.text;
+                                  signUpData.password = passwordController.text;
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(

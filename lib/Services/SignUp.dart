@@ -1,9 +1,11 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:get_hubweb/Modal%20API/customer_registration.dart';
+import 'package:get_hubweb/Integrate/Modal%20API/customer_registration.dart';
+import 'package:get_hubweb/Integrate/Service%20API/registration.dart';
+
 import 'package:get_hubweb/Provider/signup_provider.dart';
-import 'package:get_hubweb/Service%20API/registration.dart';
+
 import 'package:get_hubweb/Services/SignIn.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:provider/provider.dart';

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_hubweb/Landing%20Page/landing_home.dart';
 import 'package:get_hubweb/Service/sign_up.dart';
-import 'package:get_hubweb/Services/login.dart';
-import 'package:get_hubweb/Services/login_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,33 +14,11 @@ class _LoginPageState extends State<LoginPage> {
   var font2 = GoogleFonts.manrope(fontSize: 24, fontWeight: FontWeight.w600);
   var font3 = GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w600);
   var font4 = GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w600);
-  String url = 'http://211.24.73.35:8000/graphql';
-  var country = '''
-  query{
-  getCountriesList{
-    statusCode,
-    message,
-    error{
-      path,
-      message,
-    }
-    data{
-      id
-      name
-      code
-      currency
-      trading_currency
-      phone_code
-    }
-  }
-}
-  ''';
 
 
 
   @override
   Widget build(BuildContext context) {
-posLogin();
     return Scaffold(
       body: CustomScrollView(
         slivers: [
